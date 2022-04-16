@@ -10,14 +10,13 @@ logout.action = function () {
 
 ApiConnector.current(function (response) {
     if (response.success) {
-        ProfileWidget.showProfile(response.data);
+        ProfileWidget.showProfile(response.success);
     }
 });
 
 const rates = new RatesBoard();
-
-function exchangeRate() {
-    ApiConnector.getStocks(function (response) {
+const exchangeRate =()=> {
+    ApiConnector.getStocks( (response)=> {
         if (response.success) {
             rates.clearTable();
             rates.fillTable(response.data);
@@ -25,19 +24,18 @@ function exchangeRate() {
     });
 }
 
-function exchangeRatePerMunute() {
-    setInterval(exchangeRate(), 60000);
-}
-exchangeRatePerMunute();
+ exchangeRate();
+    setInterval(exchangeRate, 60000);
+
 
 const money = new MoneyManager();
 money.addMoneyCallback = function (data) {
     ApiConnector.addMoney(data, (response) => {
         if (response.success) {
             ProfileWidget.showProfile(response.data);
-            money.setMessage(false, `Баланс пополнен`);
+            money.setMessage(response.success, `Баланс пополнен`);
         } else {
-            money.setMessage(true, response.data);
+            money.setMessage(response.success,response.error);
         }
     });
 }
@@ -46,9 +44,9 @@ money.conversionMoneyCallback = function (data) {
     ApiConnector.convertMoney(data, (response) => {
         if (response.success) {
             ProfileWidget.showProfile(response.data);
-            money.setMessage(false, `Конвертировано успешно`);
+            money.setMessage(response.success,`Конвертировано успешно`);
         } else {
-            money.setMessage(true, response.data);
+            money.setMessage(response.success,response.error);
         }
     });
 }
@@ -57,10 +55,10 @@ money.sendMoneyCallback = function (data) {
     ApiConnector.transferMoney(data, (response) => {
         console.log(response);
         if (response.success) {
-            ProfileWidget.showProfile(response.data);
-            money.setMessage(false, `Перевод успешно произведен`);
+            ProfileWidget.showProfile(response.success);
+            money.setMessage(response.success,`Перевод успешно произведен`);
         } else {
-            money.setMessage(true, response.data);
+            money.setMessage(response.success,response.error);
         }
     });
 }
@@ -70,8 +68,8 @@ ApiConnector.getFavorites(function (response) {
     if (response.success) {
         console.log(response);
         favorite.clearTable();
-        favorite.fillTable(response.data);
-        money.updateUsersList(response.data);
+        favorite.fillTable(response.success);
+        money.updateUsersList(response.success);
     }
 });
 
@@ -81,9 +79,9 @@ favorite.addUserCallback = function (data) {
             favorite.clearTable();
             favorite.fillTable(response.data);
             money.updateUsersList(response.data);
-            favorite.setMessage(false, `Добавлено`);
+            favorite.setMessage( tresponse.success,`Добавлено`);
         } else {
-            money.setMessage(true, response.data);
+            favorite.setMessage(response.success,response.error);
         }
     });
 }
@@ -94,9 +92,9 @@ favorite.removeUserCallback = function (data) {
             favorite.clearTable();
             favorite.fillTable(response.data);
             money.updateUsersList(response.data);
-            favorite.setMessage(false, `Удалено`);
+            favorite.setMessage( true,`Удалено`);
         } else {
-            favorite.setMessage(true, response.data);
+            favorite.setMessage(response.success,response.error);
         }
     });
 }
